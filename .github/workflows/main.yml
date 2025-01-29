@@ -119,7 +119,7 @@ jobs:
 
   telegram-notify:
     runs-on: ubuntu-latest
-    needs: build_and_push_images
+    needs: run_tests
     steps:
       - name: Notify in Telegram
         uses: appleboy/telegram-action@v0.1.5
