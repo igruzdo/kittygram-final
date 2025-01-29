@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Stage 2: Запуск приложения
-FROM python:3.10
+FROM python:3.10.4
 
 WORKDIR /code
 
