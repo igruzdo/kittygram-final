@@ -58,7 +58,7 @@ jobs:
           pip install -r backend/requirements.txt
 
       - name: Run backend tests
-        working-directory: ./backend
+        working-directory: ./
         run: pytest ./tests/
 
   build_and_push_images:
