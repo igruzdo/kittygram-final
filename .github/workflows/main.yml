@@ -17,6 +17,7 @@ jobs:
 
       - name: Setup python
         uses: actions/setup-python@v4
+        with:
           python-version: 3.10
 
       - name: Install deps
@@ -26,7 +27,7 @@ jobs:
 
       - name: Run PEP8 check
         run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-  
+
   run_tests:
     runs-on: ubuntu-latest
     env:
@@ -87,6 +88,7 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/kittygram_gateway:latest ./gateway
           docker push ${{ secrets.DOCKER_USERNAME }}/kittygram_gateway:latest
+
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push_images
@@ -119,4 +121,3 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: "✅ Deployment of Kittygram completed successfully!"
-
