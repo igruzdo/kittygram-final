@@ -1,5 +1,5 @@
 # Stage 1: Сборка зависимостей
-FROM python:3.10 AS build
+FROM python:3.10.4 AS build
 
 WORKDIR /code
 
