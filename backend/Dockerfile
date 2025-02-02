@@ -15,7 +15,10 @@ FROM python:3.10.4
 
 WORKDIR /code
 
-# Переносим собранные зависимости и код
+# Копируем зависимости из первого этапа
+COPY --from=build /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+
+# Копируем код проекта
 COPY --from=build /code /code
 
 # Переменная для корректной обработки вывода
