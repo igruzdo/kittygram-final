@@ -35,6 +35,7 @@ services:
   kittygram_gateway:
     image: nginx:latest
     container_name: gateway
+    network_mode: bridge # Добавляем этот параметр
     volumes:
       - static:/var/www/static
       - media:/var/www/media
