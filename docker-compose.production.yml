@@ -6,9 +6,6 @@ volumes:
   media:
   frontend_build:
 
-networks:
-  kittygram_network: # Создаём общую сеть
-
 services:
   postgres:
     image: postgres:13
@@ -16,10 +13,6 @@ services:
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - kittygram_network # Добавляем контейнер в сеть
 
   kittygram_backend:
     image: igruzdo/kittygram_backend:latest
@@ -30,20 +23,12 @@ services:
     volumes:
       - static:/code/static
       - media:/code/media
-    ports:
-      - "8000:8000"
-    networks:
-      - kittygram_network # Добавляем контейнер в сеть
 
   kittygram_frontend:
     image: igruzdo/kittygram_frontend:latest
     container_name: frontend
     volumes:
       - frontend_build:/app/build/
-    ports:
-      - "3000:8000"
-    networks:
-      - kittygram_network # Добавляем контейнер в сеть
 
   kittygram_gateway:
     image: igruzdo/kittygram_gateway:latest
@@ -57,5 +42,3 @@ services:
     depends_on:
       - kittygram_backend
       - kittygram_frontend
-    networks:
-      - kittygram_network # Добавляем контейнер в сеть
