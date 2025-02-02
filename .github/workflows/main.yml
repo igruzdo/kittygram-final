@@ -123,7 +123,7 @@ jobs:
     needs: run_tests
     steps:
       - name: Notify in Telegram
-        uses: appleboy/telegram-action@v0.1.5
+        uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
