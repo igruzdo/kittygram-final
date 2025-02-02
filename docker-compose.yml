@@ -1,5 +1,8 @@
 version: "3.8"
 
+networks:
+  kittygram_network: # Создаём общую сеть
+
 services:
   postgres:
     image: postgres:13
@@ -9,6 +12,8 @@ services:
       - pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - kittygram_network # Добавляем контейнер в сеть
 
   kittygram_backend:
     build:
@@ -22,6 +27,8 @@ services:
       - media:/code/media
     ports:
       - "8000:8000"
+    networks:
+      - kittygram_network # Добавляем контейнер в сеть
 
   kittygram_frontend:
     build:
@@ -31,11 +38,12 @@ services:
       - static:/app/build
     ports:
       - "3000:8000"
+    networks:
+      - kittygram_network # Добавляем контейнер в сеть
 
   kittygram_gateway:
     image: nginx:latest
     container_name: gateway
-    network_mode: bridge # Добавляем этот параметр
     volumes:
       - static:/var/www/static
       - media:/var/www/media
@@ -45,6 +53,8 @@ services:
     depends_on:
       - kittygram_backend
       - kittygram_frontend
+    networks:
+      - kittygram_network # Добавляем контейнер в сеть
 
 volumes:
   pg_data:
