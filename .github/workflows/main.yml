@@ -11,14 +11,17 @@ on:
 jobs:
   check_pep8:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, 3.10.4]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: [3.8, 3.9, 3.10.4]
+          python-version: ${{ matrix.python-version }}
 
       - name: Install deps
         run: |
@@ -69,21 +72,23 @@ jobs:
           script: |
             cd /home/igruzdo/kittygram-final
             git pull origin main
-            echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" > .env
-            echo DEBUG=${{ secrets.DEBUG }} >> .env
-            echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
-            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-            echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
-            echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
+            cat <<EOF > .env
+            DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+            DEBUG=${{ secrets.DEBUG }}
+            ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
+            POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+            EOF
             docker compose -f docker-compose.production.yml pull
             docker compose -f docker-compose.production.yml build
             docker compose -f docker-compose.production.yml up -d
             docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic --noinput
             docker compose -f docker-compose.production.yml exec backend python manage.py migrate
             docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /static/
-            docker-compose -f docker-compose.production.yml restart
+            docker compose -f docker-compose.production.yml restart
 
   run_tests:
     runs-on: ubuntu-latest
@@ -130,11 +135,10 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-          Деплой успешно выполнен!
+            ✅ Деплой успешно выполнен!
 
-          Автор коммита ${{ github.actor }}
-          Сообщение коммита: ${{ github.event.commits[0].message }}
+            👤 Автор коммита: ${{ github.actor }}
+            📝 Сообщение коммита: ${{ github.event.commits[0].message }}
 
-          Репозиторий: ${{ github.repository }}
-
-          Ссылка на коммит: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+            📦 Репозиторий: ${{ github.repository }}
+            🔗 Ссылка на коммит: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
