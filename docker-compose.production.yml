@@ -21,8 +21,8 @@ services:
     depends_on:
       - postgres
     volumes:
-      - static:/app/collected_static
-      - media:/app/media
+      - static:/app/collected_static/
+      - media:/app/media/
 
   kittygram_frontend:
     image: igruzdo/kittygram_frontend:latest
@@ -35,8 +35,8 @@ services:
     container_name: gateway
     volumes:
       - frontend_build:/usr/share/nginx/html/
-      - static:/var/www/static
-      - media:/var/www/media
+      - static:/var/www/static/
+      - media:/var/www/media/
     ports:
       - "80:80"
     depends_on:
