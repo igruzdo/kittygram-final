@@ -1,7 +1,7 @@
 # Stage 1: Сборка зависимостей
 FROM python:3.10.4 AS build
 
-WORKDIR /code
+WORKDIR /app
 
 # Устанавливаем зависимости
 COPY requirements.txt .
@@ -13,13 +13,13 @@ COPY . .
 # Stage 2: Запуск приложения
 FROM python:3.10.4
 
-WORKDIR /code
+WORKDIR /app
 
 # Копируем зависимости из первого этапа
 COPY --from=build /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 
 # Копируем код проекта
-COPY --from=build /code /code
+COPY --from=build /app /app
 
 # Переменная для корректной обработки вывода
 ENV PYTHONUNBUFFERED=1
