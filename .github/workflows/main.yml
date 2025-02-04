@@ -73,7 +73,6 @@ jobs:
             cd /home/igruzdo/kittygram-final
             sudo touch .env
             cat <<EOF > .env
-            sudo chmod 777 .env
             DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
             DEBUG=${{ secrets.DEBUG }}
             ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
