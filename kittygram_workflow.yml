@@ -94,6 +94,7 @@ jobs:
             echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
             echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
             docker compose -f docker-compose.production.yml pull
+            docker compose -f docker-compose.production.yml down
             docker compose -f docker-compose.production.yml build
             docker compose -f docker-compose.production.yml up -d
             docker compose -f docker-compose.production.yml exec backend python manage.py migrate
