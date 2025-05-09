@@ -40,7 +40,6 @@ jobs:
           terraform init \
             -backend-config="access_key=$TF_VAR_yc_access_key" \
             -backend-config="secret_key=$TF_VAR_yc_secret_key" \
-            -backend-config="bucket=${{ vars.BUCKET_NAME || 'kittygram-tfstate' }}" \
             -backend-config="key=terraform.tfstate"
 
       - name: Terraform Validate
@@ -68,7 +67,6 @@ jobs:
         run: |
           terraform apply -input=false -auto-approve
           echo "VM_IP=$(terraform output -raw vm_ip)" >> $GITHUB_ENV
-          echo "BUCKET_NAME=$(terraform output -raw bucket_name)" >> $GITHUB_ENV
 
       - name: Upload Terraform State
         if: ${{ github.event.inputs.action == 'apply' && success() }}
@@ -85,7 +83,6 @@ jobs:
         if: ${{ github.event.inputs.action == 'apply' && success() }}
         run: |
           echo "VM IP: ${{ env.VM_IP }}"
-          echo "Bucket Name: ${{ env.BUCKET_NAME }}"
 
       - name: Terraform Destroy
         working-directory: ./infra
