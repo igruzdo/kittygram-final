@@ -53,6 +53,14 @@ jobs:
         run: terraform plan -input=false -out=tfplan
         continue-on-error: false
 
+      - name: Upload Terraform Plan
+        if: ${{ github.event.inputs.action == 'plan' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plan
+          path: ${{ github.workspace }}/infra/tfplan
+          retention-days: 1
+
       - name: Terraform Apply
         working-directory: ./infra
         if: ${{ github.event.inputs.action == 'apply' }}
@@ -61,17 +69,18 @@ jobs:
           echo "VM_IP=$(terraform output -raw vm_ip)" >> $GITHUB_ENV
           echo "BUCKET_NAME=$(terraform output -raw bucket_name)" >> $GITHUB_ENV
 
-      - name: Terraform Destroy
-        working-directory: ./infra
-        if: ${{ github.event.inputs.action == 'destroy' }}
-        run: terraform destroy -input=false -auto-approve
-
-      - name: Upload Terraform Outputs
+      - name: Upload Terraform State
         if: ${{ github.event.inputs.action == 'apply' }}
         uses: actions/upload-artifact@v3
         with:
-          name: terraform-outputs
+          name: terraform-state
           path: |
             ${{ github.workspace }}/infra/.terraform.lock.hcl
             ${{ github.workspace }}/infra/terraform.tfstate
           retention-days: 1
+          if-no-files-found: warn
+
+      - name: Terraform Destroy
+        working-directory: ./infra
+        if: ${{ github.event.inputs.action == 'destroy' }}
+        run: terraform destroy -input=false -auto-approve
