@@ -5,9 +5,7 @@ terraform {
     }
   }
   backend "s3" {
-    endpoints = {
-      s3 = "https://storage.yandexcloud.net"
-    }
+    endpoint   = "storage.yandexcloud.net"
     bucket     = "my-kittygram-bucket"
     region     = "ru-central1"
     key        = "terraform.tfstate"
@@ -17,6 +15,8 @@ terraform {
     skip_credentials_validation = true
     skip_requesting_account_id  = true
     skip_s3_checksum            = true
+    skip_metadata_api_check     = true
+    force_path_style            = true
   }
 }
 
