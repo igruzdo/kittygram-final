@@ -75,7 +75,7 @@ jobs:
           # Проверяем установку
           aws --version
 
-      - name: Get VM IP and SSH-KEY via AWS CLI
+      - name: Get VM IP via AWS CLI
         id: get-vm-ip
         run: |
           aws configure set aws_access_key_id ${{ secrets.YC_ACCESS_KEY }}
@@ -87,6 +87,9 @@ jobs:
 
           VM_IP=$(jq -r '.outputs.vm_ip.value' ./terraform.tfstate)
           echo "vm_ip=$VM_IP" >> $GITHUB_OUTPUT
+
+      - name: Ensure SSH directory exists
+        run: mkdir -p ~/.ssh && chmod 700 ~/.ssh
 
       - name: Use SSH key from Secrets
         run: |
