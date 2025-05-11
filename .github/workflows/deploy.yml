@@ -86,20 +86,32 @@ jobs:
             s3 cp s3://my-kittygram-bucket/terraform.tfstate ./terraform.tfstate
 
           VM_IP=$(jq -r '.outputs.vm_ip.value' ./terraform.tfstate)
-          SSH_PUB_KEY=$(jq -r '.outputs.ssh_pub_key.value' ./terraform.tfstate)
-          SSH_PRIV_KEY=$(jq -r '.outputs.ssh_priv_key.value' ./terraform.tfstate | base64 --decode)
+          SSH_PRIV_KEY=$(jq -r '.outputs.ssh_priv_key.value' ./terraform.tfstate)
 
-          # Сохраняем ключ в файл
           mkdir -p ~/.ssh
-          echo "$SSH_PRIV_KEY" > ~/.ssh/id_rsa
-          echo "$SSH_PUB_KEY" > ~/.ssh/id_rsa.pub
-          chmod 600 ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa.pub
           ssh-keyscan $VM_IP >> ~/.ssh/known_hosts
 
           echo "vm_ip=$VM_IP" >> $GITHUB_OUTPUT
-          echo "SSH key fingerprint:"
+          echo "ssh_priv_key=$SSH_PRIV_KEY" >> $GITHUB_OUTPUT
+
+      - name: Decode SSH key
+        run: |
+          echo "${{ steps.get-vm-ip.outputs.ssh_priv_key }}" | base64 --decode > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Verify SSH Keys
+        run: |
+          echo "=== Private Key ==="
+          head -n 3 ~/.ssh/id_rsa
+
+          echo "=== Key Fingerprint ==="
           ssh-keygen -lf ~/.ssh/id_rsa
+
+          echo "=== Testing Connection ==="
+          ssh -i ~/.ssh/id_rsa \
+            -o StrictHostKeyChecking=no \
+            ubuntu@${{ steps.get-vm-ip.outputs.vm_ip }} \
+            "echo 'Connection successful!'"
 
       - name: Verify SSH Connection
         run: |
