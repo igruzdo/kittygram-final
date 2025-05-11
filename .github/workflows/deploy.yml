@@ -95,7 +95,7 @@ jobs:
           SSH_PRIV_KEY=$(jq -r '.outputs.ssh_priv_key.value' terraform.tfstate)
 
           echo "-----BEGIN OPENSSH PRIVATE KEY-----" > ssh_key.pem
-          echo "$SSH_PRIVATE_KEY" >> ssh_key.pem
+          echo "$SSH_PRIV_KEY" >> ssh_key.pem
           echo "-----END OPENSSH PRIVATE KEY-----" >> ssh_key.pem
 
           chmod 600 ssh_key.pem
