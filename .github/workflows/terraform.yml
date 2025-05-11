@@ -14,6 +14,7 @@ on:
           - destroy
 
 env:
+  TF_VAR_yc_zone: ${{ secrets.YC_ZONE }}
   TF_VAR_yc_token: ${{ secrets.YC_TOKEN }}
   TF_VAR_yc_cloud_id: ${{ secrets.YC_CLOUD_ID }}
   TF_VAR_yc_folder_id: ${{ secrets.YC_FOLDER_ID }}

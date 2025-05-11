@@ -36,6 +36,7 @@ variable "yc_zone" {
 
 variable "ssh_public_key" {
   type        = string
+  default     = ""
   description = "SSH public key for VM access"
   sensitive   = true
 }
