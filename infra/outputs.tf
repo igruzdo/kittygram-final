@@ -11,7 +11,7 @@ output "ssh_pub_key" {
 }
 
 output "ssh_priv_key" {
-  description = "Публичный ключ"
+  description = "Приватный ключ"
   value       = yandex_compute_instance.vm.metadata.ssh-priv-key
   sensitive   = true
 }
