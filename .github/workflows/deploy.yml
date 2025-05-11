@@ -69,6 +69,7 @@ jobs:
       - name: Install YC CLI
         run: |
           curl -s https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+          exec -l $SHELL
           echo "${{ secrets.YC_TOKEN }}" | yc config set-token
 
       - name: Download State File
