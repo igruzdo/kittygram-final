@@ -38,7 +38,7 @@ jobs:
 
       - name: Save SSH Key
         if: ${{ github.event.inputs.action == 'apply' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@4
         with:
           name: ssh-key
           path: |
