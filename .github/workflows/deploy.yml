@@ -66,12 +66,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Install AWS CLI
+        run: |
+          # Устанавливаем pip (если еще нет)
+          sudo apt-get update && sudo apt-get install -y python3-pip
+          # Устанавливаем AWS CLI через pip
+          pip install awscli --upgrade
+          # Проверяем установку
+          aws --version
+
       - name: Get VM IP via AWS CLI
         id: get-vm-ip
         run: |
-          # Устанавливаем AWS CLI
-          sudo apt-get update && sudo apt-get install -y awscli
-
           # Конфигурируем доступ к Yandex S3
           aws configure set aws_access_key_id ${{ secrets.YC_ACCESS_KEY }}
           aws configure set aws_secret_access_key ${{ secrets.YC_SECRET_KEY }}
