@@ -1,9 +1,5 @@
 name: Terraform Infrastructure
 
-permissions:
-  contents: read
-  secrets: write
-
 on:
   workflow_dispatch:
     inputs:
@@ -16,6 +12,10 @@ on:
           - plan
           - apply
           - destroy
+
+permissions:
+  contents: read
+  secrets: write
 
 env:
   TF_VAR_yc_zone: ${{ secrets.YC_ZONE }}
