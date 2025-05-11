@@ -90,9 +90,3 @@ resource "yandex_compute_instance" "vm" {
     ssh-keys = "ubuntu:${var.ssh_public_key}"
   }
 }
-
-resource "yandex_storage_bucket" "bucket" {
-  bucket     = "kittygram-bucket"
-  access_key = var.yc_access_key
-  secret_key = var.yc_secret_key
-}
