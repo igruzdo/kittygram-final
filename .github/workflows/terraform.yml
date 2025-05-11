@@ -1,5 +1,9 @@
 name: Terraform Infrastructure
 
+permissions:
+  contents: read
+  secrets: write
+
 on:
   workflow_dispatch:
     inputs:
