@@ -14,8 +14,9 @@ on:
           - destroy
 
 permissions:
-  contents: read
-  secrets: write
+  contents: write
+  actions: write
+  id-token: write
 
 env:
   TF_VAR_yc_zone: ${{ secrets.YC_ZONE }}
