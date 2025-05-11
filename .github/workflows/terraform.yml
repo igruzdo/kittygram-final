@@ -98,7 +98,7 @@ jobs:
             ${{ github.workspace }}/infra/.terraform.lock.hcl
             ${{ github.workspace }}/infra/terraform.tfstate
           retention-days: 1
-          if-no-files-found: error
+          if-no-files-found: ignore
 
       - name: Terraform Outputs
         if: ${{ github.event.inputs.action == 'apply' && success() }}
