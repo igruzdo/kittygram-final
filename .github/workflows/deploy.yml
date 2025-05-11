@@ -104,6 +104,9 @@ jobs:
       - name: Show beginning of SSH key
         run: head -n 5 ssh_key.pem
 
+      - name: Check if SSH key exists
+        run: ls -l ssh_key.pem
+
       - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
         with:
