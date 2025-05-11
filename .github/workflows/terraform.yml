@@ -28,6 +28,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Generate SSH Key
+        id: ssh-key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N "" -q
+          echo "SSH_PUB_KEY=$(cat ~/.ssh/id_rsa.pub)" >> $GITHUB_ENV
+          echo "SSH_PRIV_KEY=$(cat ~/.ssh/id_rsa | base64 -w0)" >> $GITHUB_ENV
+
+      - name: Save SSH Key
+        if: ${{ github.event.inputs.action == 'apply' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: ssh-key
+          path: |
+            ~/.ssh/id_rsa
+            ~/.ssh/id_rsa.pub
+          retention-days: 1
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -67,6 +85,8 @@ jobs:
         run: |
           terraform apply -input=false -auto-approve
           echo "VM_IP=$(terraform output -raw vm_ip)" >> $GITHUB_ENV
+        env:
+          TF_VAR_ssh_public_key: ${{ env.SSH_PUB_KEY }}
 
       - name: Upload Terraform State
         if: ${{ github.event.inputs.action == 'apply' && success() }}
