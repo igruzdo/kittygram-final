@@ -63,6 +63,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_push_images
     steps:
+      - name: Download SSH Key
+        uses: actions/download-artifact@v4
+        with:
+          name: ssh-key
+          path: ~/.ssh
+
+      - name: Set permissions for SSH key
+        run: |
+          chmod 600 ~/.ssh/id_rsa
+
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -96,7 +106,7 @@ jobs:
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          key: ~/.ssh/id_rsa
           source: "docker-compose.production.yml"
           target: "kittygram/"
 
@@ -105,7 +115,7 @@ jobs:
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          key: ~/.ssh/id_rsa
           script: |
             cd kittygram/
             sudo touch .env
