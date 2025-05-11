@@ -113,13 +113,6 @@ jobs:
             ubuntu@${{ steps.get-vm-ip.outputs.vm_ip }} \
             "echo 'Connection successful!'"
 
-      - name: Verify SSH Connection
-        run: |
-          ssh -i ~/.ssh/id_rsa \
-            -o StrictHostKeyChecking=no \
-            ubuntu@${{ steps.get-vm-ip.outputs.vm_ip }} \
-            "echo 'SSH connection successful!'"
-
       - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
         with:
