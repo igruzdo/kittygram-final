@@ -68,9 +68,26 @@ jobs:
 
       - name: Install YC CLI
         run: |
-          curl -s https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-          exec -l $SHELL
+          # Устанавливаем yc с явным обновлением PATH
+          curl -s https://storage.yandexcloud.net/yandexcloud-yc/install.sh | \
+          bash -s -- -i /usr/local/bin -n
+
+          # Проверяем установку
+          if ! command -v yc &> /dev/null; then
+            echo "::error::YC CLI installation failed"
+            exit 1
+          fi
+
+          # Настраиваем аутентификацию
           echo "${{ secrets.YC_TOKEN }}" | yc config set-token
+          yc config set cloud-id ${{ secrets.YC_CLOUD_ID }}
+          yc config set folder-id ${{ secrets.YC_FOLDER_ID }}
+
+          # Проверяем доступ
+          if ! yc resource-manager cloud get; then
+            echo "::error::YC authentication failed"
+            exit 1
+          fi
 
       - name: Download State File
         run: |
