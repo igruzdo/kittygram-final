@@ -78,36 +78,39 @@ jobs:
       - name: Get VM IP and SSH-KEY via AWS CLI
         id: get-vm-ip
         run: |
-          # Конфигурируем доступ к Yandex S3
           aws configure set aws_access_key_id ${{ secrets.YC_ACCESS_KEY }}
           aws configure set aws_secret_access_key ${{ secrets.YC_SECRET_KEY }}
           aws configure set default.region ru-central1
 
-          # Скачиваем state-файл
           aws --endpoint-url=https://storage.yandexcloud.net \
             s3 cp s3://my-kittygram-bucket/terraform.tfstate ./terraform.tfstate
 
-          # Извлекаем IP
-          VM_IP=$(jq -r '.outputs.vm_ip.value' terraform.tfstate)
+          VM_IP=$(jq -r '.outputs.vm_ip.value' ./terraform.tfstate)
+          SSH_PRIV_KEY=$(jq -r '.outputs.ssh_priv_key.value' ./terraform.tfstate | base64 --decode)
+
+          # Сохраняем ключ в файл
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIV_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan $VM_IP >> ~/.ssh/known_hosts
+
           echo "vm_ip=$VM_IP" >> $GITHUB_OUTPUT
+          echo "SSH key fingerprint:"
+          ssh-keygen -lf ~/.ssh/id_rsa
 
-          # ssh_priv_key в tfstate хранится как base64-строка БЕЗ BEGIN/END
-          SSH_PRIV_KEY=$(jq -r '.outputs.ssh_priv_key.value' terraform.tfstate)
-
-          # Декодируем base64 и записываем в файл
-          echo "ssh_priv_key<<EOF" >> $GITHUB_OUTPUT
-          echo "$SSH_PRIV_KEY" | base64 --decode >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Show beginning of SSH key
-        run: echo "$SSH_PRIV_KEY" | head -n 5
+      - name: Verify SSH Connection
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+            -o StrictHostKeyChecking=no \
+            ubuntu@${{ steps.get-vm-ip.outputs.vm_ip }} \
+            "echo 'SSH connection successful!'"
 
       - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ steps.get-vm-ip.outputs.ssh_priv_key }}
+          key: ${{ github.workspace }}/.ssh/id_rsa
           source: "docker-compose.production.yml"
           target: "kittygram/"
 
@@ -116,7 +119,7 @@ jobs:
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ steps.get-vm-ip.outputs.ssh_priv_key }}
+          key: ${{ github.workspace }}/.ssh/id_rsa
           script: |
             cd kittygram/
             sudo touch .env
