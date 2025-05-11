@@ -5,13 +5,7 @@ output "vm_ip" {
 }
 
 output "ssh_pub_key" {
-  description = "Публичный ключ"
-  value       = yandex_compute_instance.vm.metadata.ssh-pub-key
-  sensitive   = true
-}
-
-output "ssh_priv_key" {
-  description = "Приватный ключ"
-  value       = yandex_compute_instance.vm.metadata.ssh-priv-key
+  description = "Public IP-адрес виртуальной машины для деплоя"
+  value       = yandex_compute_instance.vm.metadata.ssh-keys
   sensitive   = true
 }

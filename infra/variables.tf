@@ -40,10 +40,3 @@ variable "ssh_pub_key" {
   description = "SSH public key for VM access"
   sensitive   = true
 }
-
-variable "ssh_priv_key" {
-  type        = string
-  default     = ""
-  description = "SSH private key for VM access"
-  sensitive   = true
-}
