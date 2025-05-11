@@ -87,7 +87,8 @@ jobs:
           terraform apply -input=false -auto-approve
           echo "VM_IP=$(terraform output -raw vm_ip)" >> $GITHUB_ENV
         env:
-          TF_VAR_ssh_public_key: ${{ env.SSH_PUB_KEY }}
+          TF_VAR_ssh_pub_key: ${{ env.SSH_PUB_KEY }}
+          TF_VAR_ssh_priv_key: ${{ env.SSH_PRIV_KEY }}
 
       - name: Upload Terraform State
         if: ${{ github.event.inputs.action == 'apply' && success() }}

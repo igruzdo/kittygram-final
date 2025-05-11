@@ -92,15 +92,15 @@ jobs:
           echo "vm_ip=$VM_IP" >> $GITHUB_OUTPUT
 
           # Извлекаем SSH
-          SSH_PUBLIC_KEY=$(jq -r '.outputs.ssh_public_key.value' terraform.tfstate)
-          echo "ssh_public_key=$SSH_PUBLIC_KEY" >> $GITHUB_OUTPUT
+          SSH_PRIV_KEY=$(jq -r '.outputs.ssh_priv_key.value' terraform.tfstate)
+          echo "ssh_priv_key=$SSH_PRIV_KEY" >> $GITHUB_OUTPUT
 
       - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ steps.get-vm-ip.outputs.ssh_public_key }}
+          key: ${{ steps.get-vm-ip.outputs.ssh_priv_key }}
           source: "docker-compose.production.yml"
           target: "kittygram/"
 
@@ -109,7 +109,7 @@ jobs:
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ steps.get-vm-ip.outputs.ssh_public_key }}
+          key: ${{ steps.get-vm-ip.outputs.ssh_priv_key }}
           script: |
             cd kittygram/
             sudo touch .env
