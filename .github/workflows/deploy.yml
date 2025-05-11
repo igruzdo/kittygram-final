@@ -93,7 +93,11 @@ jobs:
 
           # Извлекаем SSH
           SSH_PRIV_KEY=$(jq -r '.outputs.ssh_priv_key.value' terraform.tfstate)
-          echo "$SSH_PRIVATE_KEY" > ssh_key.pem
+
+          echo "-----BEGIN OPENSSH PRIVATE KEY-----" > ssh_key.pem
+          echo "$SSH_PRIVATE_KEY" >> ssh_key.pem
+          echo "-----END OPENSSH PRIVATE KEY-----" >> ssh_key.pem
+
           chmod 600 ssh_key.pem
           echo "ssh_key_path=ssh_key.pem" >> $GITHUB_OUTPUT
 
