@@ -13,11 +13,6 @@ on:
           - apply
           - destroy
 
-permissions:
-  contents: write
-  actions: write
-  id-token: write
-
 env:
   TF_VAR_yc_zone: ${{ secrets.YC_ZONE }}
   TF_VAR_yc_token: ${{ secrets.YC_TOKEN }}
@@ -52,18 +47,6 @@ jobs:
             ~/.ssh/id_rsa
             ~/.ssh/id_rsa.pub
           retention-days: 1
-
-      - name: Save SSH Key to GitHub Secrets
-        if: ${{ github.event.inputs.action == 'apply' }}
-        uses: actions/github-script@v6
-        with:
-          script: |
-            await github.rest.actions.createOrUpdateRepoSecret({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              secret_name: 'SSH_PRIV_KEY',
-              encrypted_value: '${{ env.SSH_PRIV_KEY }}'
-            })
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
