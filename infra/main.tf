@@ -38,31 +38,6 @@ resource "yandex_vpc_subnet" "subnet" {
   v4_cidr_blocks = ["192.168.10.0/24"]
 }
 
-resource "yandex_vpc_security_group" "security-group" {
-  name       = "kittygram-security-group"
-  network_id = yandex_vpc_network.network.id
-
-  egress {
-    protocol       = "ANY"
-    description    = "any"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol       = "TCP"
-    description    = "ssh"
-    port           = 22
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    protocol       = "TCP"
-    description    = "http"
-    port           = 80
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
 resource "yandex_compute_instance" "vm" {
   name        = "kittygram-vm"
   platform_id = "standard-v3"
@@ -75,7 +50,7 @@ resource "yandex_compute_instance" "vm" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd81hgrcv6lsnkremf32" # Ubuntu 20.04 LTS
+      image_id = "fd8vmcue7naa6s2l5l7r"
       size     = 10
     }
   }
@@ -83,7 +58,6 @@ resource "yandex_compute_instance" "vm" {
   network_interface {
     subnet_id          = yandex_vpc_subnet.subnet.id
     nat                = true
-    security_group_ids = [yandex_vpc_security_group.security-group.id]
   }
 
   metadata = {
