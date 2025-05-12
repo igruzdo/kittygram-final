@@ -88,20 +88,12 @@ jobs:
           VM_IP=$(jq -r '.outputs.vm_ip.value' ./terraform.tfstate)
           echo "vm_ip=$VM_IP" >> $GITHUB_OUTPUT
 
-      - name: Ensure SSH directory exists
-        run: mkdir -p ~/.ssh && chmod 700 ~/.ssh
-
-      - name: Use SSH key from Secrets
-        run: |
-          echo "${{ secrets.SSH_PRIV_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
       - name: Verify SSH Connection
         run: |
           echo "=== Testing Connection ==="
           ssh -o StrictHostKeyChecking=no \
               -o UserKnownHostsFile=/dev/null \
-              -i ~/.ssh/id_rsa \
+              -i ${{ secrets.SSH_PRIV_KEY }} \
               ubuntu@${{ steps.get-vm-ip.outputs.vm_ip}} \
               "echo 'SSH connection successful!'"
 
@@ -110,7 +102,7 @@ jobs:
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ github.workspace }}/.ssh/id_rsa
+          key: ${{ secrets.SSH_PRIV_KEY }}
           source: "docker-compose.production.yml"
           target: "kittygram/"
 
@@ -119,7 +111,7 @@ jobs:
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ github.workspace }}/.ssh/id_rsa
+          key: ${{ secrets.SSH_PRIV_KEY }}
           script: |
             cd kittygram/
             sudo touch .env
