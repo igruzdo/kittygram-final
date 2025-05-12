@@ -1,4 +1,4 @@
-name: test and deploy
+name: Deploy Application
 
 on:
   push:
@@ -66,21 +66,87 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Install AWS CLI
+        run: |
+          # Устанавливаем pip (если еще нет)
+          sudo apt-get update && sudo apt-get install -y python3-pip
+          # Устанавливаем AWS CLI через pip
+          pip install awscli --upgrade
+          # Проверяем установку
+          aws --version
+
+      - name: Get VM IP via AWS CLI
+        id: get-vm-ip
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.YC_ACCESS_KEY }}
+          aws configure set aws_secret_access_key ${{ secrets.YC_SECRET_KEY }}
+          aws configure set default.region ru-central1
+
+          aws --endpoint-url=https://storage.yandexcloud.net \
+            s3 cp s3://my-kittygram-bucket/terraform.tfstate ./terraform.tfstate
+
+          VM_IP=$(jq -r '.outputs.vm_ip.value' ./terraform.tfstate)
+          echo "vm_ip=$VM_IP" >> $GITHUB_OUTPUT
+
+      - name: Ensure SSH directory exists
+        run: mkdir -p ~/.ssh && chmod 700 ~/.ssh
+
+      - name: Use SSH key from Secrets
+        run: |
+          echo "${{ secrets.SSH_PRIV_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Verify SSH Connection
+        run: |
+          echo "=== Testing Connection ==="
+          ssh -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              -i ~/.ssh/id_rsa \
+              ubuntu@${{ steps.get-vm-ip.outputs.vm_ip}} \
+              "echo 'SSH connection successful!'"
+
+      - name: Install Docker on remote server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ steps.get-vm-ip.outputs.vm_ip }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          script: |
+            if ! command -v docker &> /dev/null; then
+              echo "Installing Docker..."
+              sudo apt-get update
+              sudo apt-get install -y ca-certificates curl gnupg lsb-release
+              sudo mkdir -p /etc/apt/keyrings
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+              sudo apt-get update
+              sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+              sudo usermod -aG docker ubuntu
+              sudo systemctl enable docker
+              echo "Docker installed successfully"
+            else
+              echo "Docker is already installed"
+            fi
+
+            # Проверяем версию Docker
+            docker --version
+            docker compose version
+
       - name: Copy docker-compose.production.yml via ssh
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ steps.get-vm-ip.outputs.vm_ip }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIV_KEY }}
           source: "docker-compose.production.yml"
           target: "kittygram/"
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.5
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
+          host: ${{ steps.get-vm-ip.outputs.vm_ip }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIV_KEY }}
           script: |
             cd kittygram/
             sudo touch .env
