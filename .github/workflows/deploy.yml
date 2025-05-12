@@ -110,7 +110,7 @@ jobs:
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ github.workspace }}/.ssh/id_rsa
+          key: ${{ secrets.SSH_PRIV_KEY }}
           source: "docker-compose.production.yml"
           target: "kittygram/"
 
@@ -119,7 +119,7 @@ jobs:
         with:
           host: ${{ steps.get-vm-ip.outputs.vm_ip }}
           username: ubuntu
-          key: ${{ github.workspace }}/.ssh/id_rsa
+          key: ${{ secrets.SSH_PRIV_KEY }}
           script: |
             cd kittygram/
             sudo touch .env
