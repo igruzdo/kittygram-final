@@ -61,19 +61,6 @@ resource "yandex_compute_instance" "vm" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${var.ssh_pub_key}"
-    user-data = <<-EOF
-      #cloud-config
-      datasource:
-        Ec2:
-          strict_id: false
-      ssh_pwauth: no
-      users:
-      - name: ubuntu
-        sudo: ALL=(ALL) NOPASSWD:ALL
-        shell: /bin/bash
-        ssh_authorized_keys:
-        - ${var.ssh_pub_key}
-    EOF
+    user-data = file(var.new_user)
   }
 }
