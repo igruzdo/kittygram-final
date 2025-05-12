@@ -36,5 +36,5 @@ variable "yc_zone" {
 
 variable "new_user" {
   type        = string
-  description = "meta.txt"
+  default = "meta.txt"
 }
